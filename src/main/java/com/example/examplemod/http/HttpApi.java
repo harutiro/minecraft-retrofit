@@ -10,12 +10,6 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import java.io.OutputStream;
-import java.lang.reflect.Constructor;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.time.Instant;
-
 public class HttpApi {
     /// APIのベースURL
     private String baseUrl = "https://official-joke-api.appspot.com/";
