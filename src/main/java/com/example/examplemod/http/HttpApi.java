@@ -1,78 +1,57 @@
 package com.example.examplemod.http;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.io.OutputStream;
+import java.lang.reflect.Constructor;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.Instant;
 
 public class HttpApi {
     /// APIのベースURL
-    public String baseUrl = "https://example.com/";
+    private String baseUrl = "https://official-joke-api.appspot.com/";
     private static final Logger LOGGER = LogManager.getLogger();
 
-    public String getData(String path) {
-        // APIのURLを指定
-        String apiUrl = baseUrl + path; // APIの実際のURLに置き換える
+    private ApiInterface getClient() {
 
-        try {
-            // URLオブジェクトを作成
-            URL url = new URL(apiUrl);
+        Gson gson = new GsonBuilder()
+                .setLenient()  // lenientモードを有効に
+                .create();
 
-            // HttpURLConnectionを作成
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-
-            // レスポンスを取得
-            int responseCode = conn.getResponseCode();
-            LOGGER.info("HTTPステータスコード: " + responseCode);
-
-            // レスポンスボディを取得
-            String responseBody = "";
-            try (java.io.InputStream in = conn.getInputStream()) {
-                byte[] body = in.readAllBytes();
-                responseBody = new String(body);
-            }
-            // 接続を閉じる
-            conn.disconnect();
-
-            return responseBody;
-        } catch (Exception e) {
-            LOGGER.error("GETリクエスト送信中にエラーが発生しました。", e);
-            return "";
-        }
+        Retrofit retro = new Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+        ApiInterface service = retro.create(ApiInterface.class);
+        return service;
     }
 
-    public void postData(String jsonBody, String path) {
-        // APIのURLを指定
-        String apiUrl = baseUrl + path; // APIの実際のURLに置き換える
-
-        try {
-            // URLオブジェクトを作成
-            URL url = new URL(apiUrl);
-
-            // HttpURLConnectionを作成
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setDoOutput(true);
-
-            // リクエストボディを書き込む
-            try (OutputStream os = conn.getOutputStream()) {
-                byte[] input = jsonBody.getBytes("utf-8");
-                os.write(input, 0, input.length);
+    public void getJoke(JokeApiCallback callback) {
+        Call<JokeEntity> btc = getClient().getJoke();
+        btc.enqueue(new Callback<JokeEntity>() {
+            @Override
+            public void onResponse(Call<JokeEntity> call, Response<JokeEntity> response) {
+                if (response.isSuccessful()) {
+                    LOGGER.info("APIからのレスポンス: " + response.body());
+                    JokeEntity jokeEntity = response.body();
+                    callback.onResponse(jokeEntity);
+                }
             }
 
-            // レスポンスを取得
-            int responseCode = conn.getResponseCode();
-            LOGGER.info("HTTPステータスコード: " + responseCode);
-
-            // 接続を閉じる
-            conn.disconnect();
-        } catch (Exception e) {
-            LOGGER.error("POSTリクエスト送信中にエラーが発生しました。", e);
-        }
+            @Override
+            public void onFailure(Call call, Throwable t) {
+                LOGGER.error("APIへのリクエスト中にエラーが発生しました。", t);
+                callback.onFailure();
+            }
+        });
     }
 }
