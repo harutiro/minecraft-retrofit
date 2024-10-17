@@ -29,8 +29,31 @@ public class HttpApi {
         return service;
     }
 
-    public void getJoke(JokeApiCallback callback) {
-        Call<JokeEntity> btc = getClient().getJoke();
+    public void getJokeRandom(JokeApiCallback callback) {
+        Call<JokeEntity> btc = getClient().getJokeRandom();
+        btc.enqueue(new Callback<JokeEntity>() {
+            @Override
+            public void onResponse(Call<JokeEntity> call, Response<JokeEntity> response) {
+                if (response.isSuccessful()) {
+                    LOGGER.info("APIからのレスポンス: " + response.body());
+                    JokeEntity jokeEntity = response.body();
+                    callback.onResponse(jokeEntity);
+                }
+            }
+
+            @Override
+            public void onFailure(Call call, Throwable t) {
+                LOGGER.error("APIへのリクエスト中にエラーが発生しました。", t);
+                callback.onFailure();
+            }
+        });
+    }
+
+    public void getJoke(int id, JokeApiCallback callback) {
+
+        LOGGER.info("ID: " + id);
+
+        Call<JokeEntity> btc = getClient().getJoke(id);
         btc.enqueue(new Callback<JokeEntity>() {
             @Override
             public void onResponse(Call<JokeEntity> call, Response<JokeEntity> response) {

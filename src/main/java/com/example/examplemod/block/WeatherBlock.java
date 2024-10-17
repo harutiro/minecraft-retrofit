@@ -27,7 +27,7 @@ public class WeatherBlock extends Block {
         HttpApi api = new HttpApi();
 
         // HTTPリクエストを実行
-        api.getJoke(new JokeApiCallback() {
+        api.getJokeRandom(new JokeApiCallback() {
             @Override
             public void onResponse(JokeEntity jokeEntity) {
                 if (pPlacer != null) {

@@ -1,5 +1,6 @@
 package com.example.examplemod;
 
+import com.example.examplemod.block.GUIBlock;
 import com.example.examplemod.block.WeatherBlock;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
@@ -33,6 +34,7 @@ public class ExampleMod {
 
     // Block
     public static final Block WEATHER_BLOCK = new WeatherBlock().setRegistryName(MODID,"weather_block");
+    public static final Block GUI_BLOCK = new GUIBlock().setRegistryName(MODID,"gui_block");
 
 
     public ExampleMod() {
@@ -54,7 +56,8 @@ public class ExampleMod {
     public static class RegistryEvents {
         private static final RegisterBlockData[] registerBlocks = {
                 // ここにBlockを書いてね！
-                new RegisterBlockData(WEATHER_BLOCK),
+                new RegisterBlockData(WEATHER_BLOCK, CreativeModeTab.TAB_BUILDING_BLOCKS),
+                new RegisterBlockData(GUI_BLOCK, CreativeModeTab.TAB_BUILDING_BLOCKS)
         };
 
         private static final Item[] registerItems = {
