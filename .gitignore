@@ -8,7 +8,6 @@ bin
 .idea
 .gradle
 run
-build.gradle
 CREDITS.txt
 gradle.properties
 LICENSE.txt
